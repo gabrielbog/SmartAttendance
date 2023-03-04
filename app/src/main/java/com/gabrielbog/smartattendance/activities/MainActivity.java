@@ -1,8 +1,10 @@
-package com.gabrielbog.smartattendance;
+package com.gabrielbog.smartattendance.activities;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
+
+import com.gabrielbog.smartattendance.R;
 
 public class MainActivity extends AppCompatActivity {
 

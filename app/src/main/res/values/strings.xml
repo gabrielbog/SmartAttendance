@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">SmartAttendance</string>
+    <!-- Log In Strings -->
+    <string name="identity_hint">Identity Code</string>
+    <string name="password_hint">Password</string>
+    <string name="login_hint">Log In</string>
 </resources>
