@@ -1,6 +1,8 @@
 package com.gabrielbog.smartattendance.activities;
 
 import androidx.appcompat.app.AppCompatActivity;
+
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -9,6 +11,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.gabrielbog.smartattendance.R;
+import com.gabrielbog.smartattendance.models.LogInResponse;
 import com.gabrielbog.smartattendance.models.User;
 import com.gabrielbog.smartattendance.network.RetrofitInterface;
 import com.gabrielbog.smartattendance.network.RetrofitService;
@@ -40,25 +43,35 @@ public class LoginActivity extends AppCompatActivity {
                 String cnp = identityBox.getText().toString();
                 String password = passwordBox.getText().toString();
 
-                //debugText.setText(cnp + " " + password);
-
-                Call<Integer> logInCall = RetrofitService.getInstance().create(RetrofitInterface.class).getUserByCnpAndPassword(cnp, password);
-                logInCall.enqueue(new Callback<Integer>() {
-                    @Override
-                    public void onResponse(Call<Integer> call, Response<Integer> response) {
-                        if(response.body() == 1) {
-                            debugText.setText("Works");
+                //replace debugText with toasts
+                if(cnp.equals("") || password.equals("")) {
+                    debugText.setText("Please fill all boxes");
+                }
+                else {
+                    Call<LogInResponse> logInCall = RetrofitService.getInstance().create(RetrofitInterface.class).getUserByCnpAndPassword(cnp, password);
+                    logInCall.enqueue(new Callback<LogInResponse>() {
+                        @Override
+                        public void onResponse(Call<LogInResponse> call, Response<LogInResponse> response) {
+                            if(response.body().getCode() == 1) {
+                                Intent i = new Intent(LoginActivity.this, MainActivity.class);
+                                i.putExtra("response", response.body());
+                                finish();
+                                startActivity(i);
+                            }
+                            else {
+                                debugText.setText("Not found");
+                            }
                         }
-                        else {
-                            debugText.setText("Not found");
-                        }
-                    }
 
-                    @Override
-                    public void onFailure(Call<Integer> call, Throwable t) {
-                        debugText.setText(t.getMessage());
-                    }
-                });
+                        @Override
+                        public void onFailure(Call<LogInResponse> call, Throwable t) {
+                            debugText.setText("Try again later");
+                        }
+                    });
+                }
+
+                password = null;
+                passwordBox.setText("");
             }
         });
     }
