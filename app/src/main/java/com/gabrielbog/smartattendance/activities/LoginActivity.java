@@ -27,7 +27,6 @@ public class LoginActivity extends AppCompatActivity {
     private EditText identityBox;
     private EditText passwordBox;
     private Button logInButton;
-    private TextView debugText;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,7 +35,6 @@ public class LoginActivity extends AppCompatActivity {
         identityBox = (EditText) findViewById(R.id.identityBox);
         passwordBox = (EditText) findViewById(R.id.passwordBox);
         logInButton = (Button) findViewById(R.id.logInButton);
-        debugText = (TextView) findViewById(R.id.debugText);
 
         logInButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
@@ -45,7 +43,7 @@ public class LoginActivity extends AppCompatActivity {
 
                 //replace debugText with toasts
                 if(cnp.equals("") || password.equals("")) {
-                    debugText.setText("Please fill all boxes");
+                    Toast.makeText(LoginActivity.this, "Please fill all the boxes.", Toast.LENGTH_SHORT) .show();
                 }
                 else {
                     Call<LogInResponse> logInCall = RetrofitService.getInstance().create(RetrofitInterface.class).getUserByCnpAndPassword(cnp, password);
@@ -59,13 +57,13 @@ public class LoginActivity extends AppCompatActivity {
                                 startActivity(i);
                             }
                             else {
-                                debugText.setText("Not found");
+                                Toast.makeText(LoginActivity.this, "User couldn't be found.", Toast.LENGTH_SHORT) .show();
                             }
                         }
 
                         @Override
                         public void onFailure(Call<LogInResponse> call, Throwable t) {
-                            debugText.setText("Try again later");
+                            Toast.makeText(LoginActivity.this, "An error has occured. Try again later.", Toast.LENGTH_SHORT) .show();
                         }
                     });
                 }
