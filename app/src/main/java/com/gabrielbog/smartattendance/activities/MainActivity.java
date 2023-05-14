@@ -56,8 +56,14 @@ public class MainActivity extends AppCompatActivity {
                         startActivity(i);
                     }
                 }
-                else { //professor
+                else if(response.getIsAdmin() == 1) { //professor
 
+                    //send request to server, get unique code, start activity and send code as extra
+                    Intent i = new Intent(MainActivity.this, GeneratorActivity.class);
+                    startActivity(i);
+                }
+                else { //in case of possible exploits
+                    Toast.makeText(MainActivity.this, "Invalid server answer.", Toast.LENGTH_SHORT) .show();
                 }
             }
         });
