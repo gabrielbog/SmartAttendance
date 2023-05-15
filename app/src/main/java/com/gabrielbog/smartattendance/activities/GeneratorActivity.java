@@ -2,6 +2,7 @@ package com.gabrielbog.smartattendance.activities;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Point;
 import android.os.Bundle;
@@ -10,6 +11,8 @@ import android.view.WindowManager;
 import android.widget.ImageView;
 
 import com.gabrielbog.smartattendance.R;
+import com.gabrielbog.smartattendance.models.LogInResponse;
+import com.gabrielbog.smartattendance.models.QrCodeResponse;
 
 import androidmads.library.qrgenearator.QRGContents;
 import androidmads.library.qrgenearator.QRGEncoder;
@@ -25,6 +28,9 @@ public class GeneratorActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_generator);
+
+        Intent i = getIntent();
+        QrCodeResponse response = (QrCodeResponse) i.getSerializableExtra("response");
 
         qrCodeView = findViewById(R.id.qrCodeView);
 
@@ -44,7 +50,7 @@ public class GeneratorActivity extends AppCompatActivity {
             qrDimension = height * 3 / 4;
         }
 
-        qrgEncoder = new QRGEncoder("Test Text", null, QRGContents.Type.TEXT, qrDimension); //replace shown qr code with unique code
+        qrgEncoder = new QRGEncoder(response.getQrString(), null, QRGContents.Type.TEXT, qrDimension); //replace shown qr code with unique code
         Bitmap bitmap = qrgEncoder.getBitmap();
         qrCodeView.setImageBitmap(bitmap);
     }

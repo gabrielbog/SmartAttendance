@@ -46,10 +46,13 @@ public class LoginActivity extends AppCompatActivity {
                     Toast.makeText(LoginActivity.this, "Please fill all the boxes.", Toast.LENGTH_SHORT) .show();
                 }
                 else {
+                    //disable button functionality
+
                     Call<LogInResponse> logInCall = RetrofitService.getInstance().create(RetrofitInterface.class).getUserByCnpAndPassword(cnp, password);
                     logInCall.enqueue(new Callback<LogInResponse>() {
                         @Override
                         public void onResponse(Call<LogInResponse> call, Response<LogInResponse> response) {
+
                             if(response.body().getCode() == 1) {
                                 Intent i = new Intent(LoginActivity.this, MainActivity.class);
                                 i.putExtra("response", response.body());
@@ -66,6 +69,8 @@ public class LoginActivity extends AppCompatActivity {
                             Toast.makeText(LoginActivity.this, "An error has occured. Try again later.", Toast.LENGTH_SHORT) .show();
                         }
                     });
+
+                    //enable button functionality
                 }
 
                 password = null;
