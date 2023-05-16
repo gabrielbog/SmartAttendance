@@ -62,6 +62,7 @@ public class MainActivity extends AppCompatActivity {
                     }
                     else {
                         Intent i = new Intent(MainActivity.this, ScannerActivity.class);
+                        i.putExtra("logInId", logInResponse.getId());
                         startActivity(i);
                     }
                 }
