@@ -14,6 +14,7 @@ import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.gabrielbog.smartattendance.R;
+import com.gabrielbog.smartattendance.models.LogInCreditentials;
 import com.gabrielbog.smartattendance.models.LogInResponse;
 import com.gabrielbog.smartattendance.network.RetrofitInterface;
 import com.gabrielbog.smartattendance.network.RetrofitService;
@@ -62,8 +63,8 @@ public class LoginActivity extends AppCompatActivity {
 
                             if(response.body().getCode() == 1) {
                                 hideLoadingScreen();
+                                LogInCreditentials.createInstance(response.body()); //this just creates the instance, will be used to get the data nicer in the other activities
                                 Intent i = new Intent(LoginActivity.this, MainActivity.class);
-                                i.putExtra("response", response.body());
                                 finish();
                                 startActivity(i);
                             }
@@ -79,8 +80,6 @@ public class LoginActivity extends AppCompatActivity {
                             Toast.makeText(LoginActivity.this, "An error has occured. Try again later.", Toast.LENGTH_SHORT) .show();
                         }
                     });
-
-                    //enable button functionality
                 }
 
                 password = null;

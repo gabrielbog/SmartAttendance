@@ -6,19 +6,40 @@
     android:layout_height="match_parent"
     tools:context=".activities.ScannerActivity">
 
-    <com.budiyev.android.codescanner.CodeScannerView
-        android:id="@+id/scannerView"
-        android:layout_width="match_parent"
-        android:layout_height="550dp"/>
-
-    <TextView
-        android:id="@+id/hintText"
+    <RelativeLayout
+        android:id="@+id/scannerLayout"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/scannerView"
-        android:textSize="30dp"
-        android:layout_centerHorizontal="true"
-        android:layout_centerVertical="true"
-        android:text="Hello"/>
+        android:layout_height="wrap_content" >
+
+        <com.budiyev.android.codescanner.CodeScannerView
+            android:id="@+id/scannerView"
+            android:layout_width="match_parent"
+            android:layout_height="550dp"/>
+
+        <TextView
+            android:id="@+id/hintText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/scannerView"
+            android:textSize="30dp"
+            android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true"
+            android:text="Hello"/>
+
+    </RelativeLayout>
+
+    <LinearLayout
+        android:id="@+id/scannerLoadingLayout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:gravity="center"
+        tools:ignore="ExtraText">
+
+        <ProgressBar
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+    </LinearLayout>
 
 </RelativeLayout>
