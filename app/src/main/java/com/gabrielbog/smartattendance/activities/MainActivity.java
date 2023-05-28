@@ -80,6 +80,10 @@ public class MainActivity extends AppCompatActivity {
                                 i.putExtra("response", response.body());
                                 startActivity(i);
                             }
+                            else if(response.body().getCode() == 3) {
+                                //add more else cases when a professor doesn't have schedule at the time of the request
+                                Toast.makeText(MainActivity.this, response.body().getQrString(), Toast.LENGTH_SHORT) .show();
+                            }
                             else {
                                 //add more else cases when a professor doesn't have schedule at the time of the request
                                 Toast.makeText(MainActivity.this, "Invalid request.", Toast.LENGTH_SHORT) .show();

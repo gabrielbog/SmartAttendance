@@ -35,11 +35,11 @@ import retrofit2.Response;
 public class ScannerActivity extends AppCompatActivity {
 
     //Hardware Elements
-    Vibrator vibrator;
+    private Vibrator vibrator;
 
     //UI Elements
     private CodeScannerView scannerView;
-    private TextView debugText;
+    private TextView hintText;
     private CodeScanner codeScanner;
 
     @Override
@@ -53,9 +53,9 @@ public class ScannerActivity extends AppCompatActivity {
         vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
 
         scannerView = findViewById(R.id.scannerView);
-        debugText = findViewById(R.id.debugText);
+        hintText = findViewById(R.id.hintText);
 
-        debugText.setText(String.valueOf(logInId));
+        hintText.setText(String.valueOf(logInId));
 
         codeScanner = new CodeScanner(this, scannerView);
         codeScanner.setAutoFocusEnabled(true);
@@ -70,18 +70,23 @@ public class ScannerActivity extends AppCompatActivity {
                     @Override
                     public void run() {
 
-                        Call<QrCodeResponse> qrCodeCall = RetrofitService.getInstance().create(RetrofitInterface.class).scanQrCode(logInId, result.getText());
-                        qrCodeCall.enqueue(new Callback<QrCodeResponse>() {
-                            @Override
-                            public void onResponse(Call<QrCodeResponse> call, Response<QrCodeResponse> response) {
-                                debugText.setText(response.body().getQrString());
-                            }
+                        if(result.getText().length() == 64) {
+                            Call<QrCodeResponse> qrCodeCall = RetrofitService.getInstance().create(RetrofitInterface.class).scanQrCode(logInId, result.getText());
+                            qrCodeCall.enqueue(new Callback<QrCodeResponse>() {
+                                @Override
+                                public void onResponse(Call<QrCodeResponse> call, Response<QrCodeResponse> response) {
+                                    hintText.setText(response.body().getQrString());
+                                }
 
-                            @Override
-                            public void onFailure(Call<QrCodeResponse> call, Throwable t) {
-                                debugText.setText("Try again later.");
-                            }
-                        });
+                                @Override
+                                public void onFailure(Call<QrCodeResponse> call, Throwable t) {
+                                    hintText.setText("Try again later.");
+                                }
+                            });
+                        }
+                        else {
+                            hintText.setText("Invalid QR code."); //done here so the server isn't overloaded with requests
+                        }
 
                         if(Build.VERSION.SDK_INT >= 26) {
                             vibrator.vibrate(VibrationEffect.createOneShot(250, VibrationEffect.DEFAULT_AMPLITUDE));

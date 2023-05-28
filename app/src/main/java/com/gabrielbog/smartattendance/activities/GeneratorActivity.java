@@ -22,7 +22,7 @@ public class GeneratorActivity extends AppCompatActivity {
     // UI Elements
 
     private ImageView qrCodeView;
-    QRGEncoder qrgEncoder;
+    private QRGEncoder qrgEncoder;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
