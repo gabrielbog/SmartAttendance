@@ -1,5 +1,7 @@
 package com.gabrielbog.smartattendance.models;
 
+import com.gabrielbog.smartattendance.models.responses.LogInResponse;
+
 public class LogInCreditentials {
     private static LogInCreditentials inst = null;
     private LogInResponse logInResponse;

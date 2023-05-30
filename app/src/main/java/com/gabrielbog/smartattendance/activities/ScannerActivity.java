@@ -2,32 +2,25 @@ package com.gabrielbog.smartattendance.activities;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
 
-import android.Manifest;
 import android.content.Context;
-import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.VibrationEffect;
 import android.os.Vibrator;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.budiyev.android.codescanner.CodeScanner;
 import com.budiyev.android.codescanner.CodeScannerView;
 import com.budiyev.android.codescanner.DecodeCallback;
-import com.budiyev.android.codescanner.ScanMode;
 import com.gabrielbog.smartattendance.R;
 import com.gabrielbog.smartattendance.models.LogInCreditentials;
-import com.gabrielbog.smartattendance.models.LogInResponse;
-import com.gabrielbog.smartattendance.models.QrCodeResponse;
+import com.gabrielbog.smartattendance.models.responses.QrCodeResponse;
 import com.gabrielbog.smartattendance.network.RetrofitInterface;
 import com.gabrielbog.smartattendance.network.RetrofitService;
 import com.google.zxing.Result;
@@ -46,6 +39,7 @@ public class ScannerActivity extends AppCompatActivity {
     private LinearLayout scannerLoadingLayout;
     private CodeScannerView scannerView;
     private TextView hintText;
+    private Button resultButton;
     private CodeScanner codeScanner;
 
     @Override
@@ -63,6 +57,8 @@ public class ScannerActivity extends AppCompatActivity {
         scannerView = findViewById(R.id.scannerView);
         hintText = findViewById(R.id.hintText);
         hintText.setText("Please scan the QR Code provided by the professor.");
+        resultButton = (Button) findViewById(R.id.resultButton);
+        resultButton.setVisibility(View.GONE); //custom behavior depending on code state
 
         codeScanner = new CodeScanner(this, scannerView);
         codeScanner.setAutoFocusEnabled(true);
@@ -85,18 +81,21 @@ public class ScannerActivity extends AppCompatActivity {
                                 @Override
                                 public void onResponse(Call<QrCodeResponse> call, Response<QrCodeResponse> response) {
                                     hideLoadingScreen();
+                                    resultButton.setVisibility(View.VISIBLE);
                                     hintText.setText(response.body().getQrString());
                                 }
 
                                 @Override
                                 public void onFailure(Call<QrCodeResponse> call, Throwable t) {
                                     hideLoadingScreen();
+                                    resultButton.setVisibility(View.VISIBLE);
                                     hintText.setText("Try again later.");
                                 }
                             });
                         }
                         else {
                             hideLoadingScreen();
+                            resultButton.setVisibility(View.VISIBLE);
                             hintText.setText("Invalid QR code."); //done here so the server isn't overloaded with requests
                         }
 

@@ -15,7 +15,7 @@ import android.widget.Toast;
 
 import com.gabrielbog.smartattendance.R;
 import com.gabrielbog.smartattendance.models.LogInCreditentials;
-import com.gabrielbog.smartattendance.models.LogInResponse;
+import com.gabrielbog.smartattendance.models.responses.LogInResponse;
 import com.gabrielbog.smartattendance.network.RetrofitInterface;
 import com.gabrielbog.smartattendance.network.RetrofitService;
 

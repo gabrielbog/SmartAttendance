@@ -1,7 +1,9 @@
 package com.gabrielbog.smartattendance.network;
 
-import com.gabrielbog.smartattendance.models.LogInResponse;
-import com.gabrielbog.smartattendance.models.QrCodeResponse;
+import com.gabrielbog.smartattendance.models.responses.LogInResponse;
+import com.gabrielbog.smartattendance.models.responses.QrCodeResponse;
+import com.gabrielbog.smartattendance.models.responses.StudentAttendanceResponse;
+import com.gabrielbog.smartattendance.models.responses.SubjectListResponse;
 
 import retrofit2.Call;
 import retrofit2.http.Path;
@@ -17,4 +19,10 @@ public interface RetrofitInterface {
 
     @GET("/api/scanQrCode/{id}&{code}")
     Call<QrCodeResponse> scanQrCode(@Path("id") int id, @Path("code") String code);
+
+    @GET("/api/getSubjectList/{id}")
+    Call<SubjectListResponse> getSubjectList(@Path("id") int id);
+
+    @GET("/api/getSubjectAttendanceList/{studentId}&{subjectId}")
+    Call<StudentAttendanceResponse> getSubjectAttendanceList(@Path("studentId") int studentId, @Path("subjectId") int subjectId);
 }

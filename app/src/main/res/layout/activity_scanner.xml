@@ -26,6 +26,15 @@
             android:layout_centerVertical="true"
             android:text="Hello"/>
 
+        <Button
+            android:id="@+id/resultButton"
+            android:layout_width="300dp"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true"
+            android:layout_below="@+id/hintText"
+            android:text="Hello"/>
+
     </RelativeLayout>
 
     <LinearLayout

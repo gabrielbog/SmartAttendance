@@ -1,4 +1,4 @@
-package com.gabrielbog.smartattendance.models;
+package com.gabrielbog.smartattendance.models.responses;
 
 import java.io.Serializable;
 

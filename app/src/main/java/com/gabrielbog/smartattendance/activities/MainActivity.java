@@ -18,8 +18,7 @@ import android.widget.Toast;
 
 import com.gabrielbog.smartattendance.R;
 import com.gabrielbog.smartattendance.models.LogInCreditentials;
-import com.gabrielbog.smartattendance.models.LogInResponse;
-import com.gabrielbog.smartattendance.models.QrCodeResponse;
+import com.gabrielbog.smartattendance.models.responses.QrCodeResponse;
 import com.gabrielbog.smartattendance.network.RetrofitInterface;
 import com.gabrielbog.smartattendance.network.RetrofitService;
 
@@ -37,6 +36,7 @@ public class MainActivity extends AppCompatActivity {
     private LinearLayout mainLoadingLayout;
     private TextView greetText;
     private Button qrButton;
+    private Button attendanceButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,10 +51,16 @@ public class MainActivity extends AppCompatActivity {
         greetText = (TextView) findViewById(R.id.greetText);
         greetText.setText("Welcome, " + logInCreditentials.getLogInResponse().getFirstName());
         qrButton = (Button) findViewById(R.id.qrButton);
-        if(logInCreditentials.getLogInResponse().getIsAdmin() == 0) //student
+        attendanceButton = (Button) findViewById(R.id.attendanceButton);
+        if(logInCreditentials.getLogInResponse().getIsAdmin() == 0) {
+            //student
             qrButton.setText("Scan QR Code");
-        else
+            attendanceButton.setText("View Subject Attendance");
+        }
+        else {
             qrButton.setText("Generate QR Code");
+            attendanceButton.setText("View Student Attendance");
+        }
 
         qrButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -105,6 +111,19 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
+
+        attendanceButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(logInCreditentials.getLogInResponse().getIsAdmin() == 0) { //student
+                    Intent i = new Intent(MainActivity.this, StudentAttendanceActivity.class);
+                    startActivity(i);
+                }
+
+                //professor
+                //todo
+            }
+        });
     }
 
     //e
@@ -141,14 +160,14 @@ public class MainActivity extends AppCompatActivity {
     public void enableFocus() {
         qrButton.setFocusableInTouchMode(true);
         qrButton.setFocusable(true);
-        //attendanceButton.setFocusableInTouchMode(true);
-        //attendanceButton.setFocusable(true);
+        attendanceButton.setFocusableInTouchMode(true);
+        attendanceButton.setFocusable(true);
     }
 
     public void disableFocus() {
         qrButton.setFocusableInTouchMode(false);
         qrButton.setFocusable(false);
-        //attendanceButton.setFocusableInTouchMode(false);
-        //attendanceButton.setFocusable(false);
+        attendanceButton.setFocusableInTouchMode(false);
+        attendanceButton.setFocusable(false);
     }
 }
