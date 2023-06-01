@@ -108,6 +108,7 @@ public class ProfessorAttendanceActivity extends AppCompatActivity {
                                     ArrayAdapter<ScheduleCalendar> scheduleCalendarArrayAdapter = new ArrayAdapter<ScheduleCalendar>(ProfessorAttendanceActivity.this, android.R.layout.simple_list_item_1, scheduleCalendarList);
                                     scheduleCalendarArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
                                     professorDateSpinner.setAdapter(scheduleCalendarArrayAdapter);
+                                    professorDateSpinner.setVisibility(View.VISIBLE);
                                 }
                             }
 
@@ -120,6 +121,18 @@ public class ProfessorAttendanceActivity extends AppCompatActivity {
                         });
                     }
                 }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+
+            }
+        });
+
+        professorDateSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                //start request
             }
 
             @Override

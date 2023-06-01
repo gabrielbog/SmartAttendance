@@ -8,7 +8,9 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonParseException;
 
 import java.lang.reflect.Type;
+import java.sql.Date;
 import java.sql.Time;
+import java.time.LocalDate;
 import java.time.LocalTime;
 
 import retrofit2.Retrofit;
@@ -23,7 +25,8 @@ public class RetrofitService {
                 .registerTypeAdapter(Time.class, new JsonDeserializer<Time>() {
                     public Time deserialize(JsonElement json, Type typeofT, JsonDeserializationContext context) throws JsonParseException {
                         LocalTime localTime = LocalTime.parse(json.getAsString());
-                        return Time.valueOf(String.valueOf(localTime));
+                        Time time = new Time(localTime.getHour(), localTime.getMinute(), localTime.getSecond()); //can't return Time.valueOf(localTime) for some reason, so this must be done instead
+                        return time;
                     }
                 })
                 .create();
