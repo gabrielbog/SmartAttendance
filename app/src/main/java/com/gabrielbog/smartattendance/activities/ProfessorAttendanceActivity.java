@@ -25,6 +25,7 @@ import com.gabrielbog.smartattendance.models.responses.SubjectListResponse;
 import com.gabrielbog.smartattendance.network.RetrofitInterface;
 import com.gabrielbog.smartattendance.network.RetrofitService;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import retrofit2.Call;
@@ -47,6 +48,7 @@ public class ProfessorAttendanceActivity extends AppCompatActivity {
     private List<Subject> subjectList;
     private List<ScheduleCalendar> scheduleCalendarList;
     private List<StudentAttendance> attendanceList;
+    private List<StudentAttendance> totalAttendanceList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,10 +63,18 @@ public class ProfessorAttendanceActivity extends AppCompatActivity {
         professorDateSpinner = (Spinner) findViewById(R.id.professorDateSpinner);
         professorDateSpinner.setVisibility(View.GONE);
         professorAttendanceListView = (ListView) findViewById(R.id.professorAttendanceListView);
+        professorAttendanceListView.setVisibility(View.GONE);
         professorButtonLayout = (LinearLayout) findViewById(R.id.professorButtonLayout);
         professorButtonLayout.setVisibility(View.GONE);
         currentDateExcelButton = (Button) findViewById(R.id.currentDateExcelButton);
+        currentDateExcelButton.setText("Generate table for current list");
         totalExcelButton = (Button) findViewById(R.id.totalExcelButton);
+        totalExcelButton.setText("Generate table for all schedules");
+
+        subjectList = new ArrayList<>();
+        scheduleCalendarList = new ArrayList<>();
+        attendanceList = new ArrayList<>();
+        totalAttendanceList = new ArrayList<>();
 
         showLoadingScreen();
         Call<SubjectListResponse> subjectListResponseCall = RetrofitService.getInstance().create(RetrofitInterface.class).getSubjectList(logInCreditentials.getLogInResponse().getId());
@@ -96,7 +106,6 @@ public class ProfessorAttendanceActivity extends AppCompatActivity {
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
                 if(subjectList.size() > 0) { //only do this if the list isn't empty
                     if(i > 0) {
-                        //reset date spinner and attendance list
                         showLoadingScreen();
                         Call<ScheduleCalendarResponse> scheduleCalendarResponseCall = RetrofitService.getInstance().create(RetrofitInterface.class).getScheduleCalendar(logInCreditentials.getLogInResponse().getId(), subjectList.get(i).getId());
                         scheduleCalendarResponseCall.enqueue(new Callback<ScheduleCalendarResponse>() {
@@ -109,11 +118,56 @@ public class ProfessorAttendanceActivity extends AppCompatActivity {
                                     scheduleCalendarArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
                                     professorDateSpinner.setAdapter(scheduleCalendarArrayAdapter);
                                     professorDateSpinner.setVisibility(View.VISIBLE);
+                                    professorAttendanceListView.setVisibility(View.GONE);
+                                    professorButtonLayout.setVisibility(View.GONE);
                                 }
                             }
 
                             @Override
                             public void onFailure(Call<ScheduleCalendarResponse> call, Throwable t) {
+                                hideLoadingScreen();
+                                System.out.println(t.getMessage());
+                                Toast.makeText(ProfessorAttendanceActivity.this, "An error has occured. Try again later.", Toast.LENGTH_SHORT) .show();
+                            }
+                        });
+                    }
+                    else {
+
+                    }
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+
+            }
+        });
+
+        professorDateSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                if(scheduleCalendarList.size() > 0) { //only do this if the list isn't empty
+                    System.out.println("here " + i);
+                    if (i > 0) {
+                        System.out.println("there");
+                        showLoadingScreen();
+                        Call<StudentAttendanceResponse> studentAttendanceResponseCall = RetrofitService.getInstance().create(RetrofitInterface.class).getAttendingStudentsList(scheduleCalendarList.get(i).getDate(), scheduleCalendarList.get(i).getId());
+                        studentAttendanceResponseCall.enqueue(new Callback<StudentAttendanceResponse>() {
+                            @Override
+                            public void onResponse(Call<StudentAttendanceResponse> call, Response<StudentAttendanceResponse> response) {
+                                if(response.body().getCode() == 1) {
+                                    hideLoadingScreen();
+                                    setAttendanceList(response.body().getStudentAttendanceList());
+                                    ArrayAdapter<StudentAttendance> studentAttendanceArrayAdapter = new ArrayAdapter<StudentAttendance>(ProfessorAttendanceActivity.this, android.R.layout.simple_list_item_1, attendanceList);
+                                    studentAttendanceArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                                    professorAttendanceListView.setAdapter(studentAttendanceArrayAdapter);
+                                    professorAttendanceListView.setVisibility(View.VISIBLE);
+                                    professorButtonLayout.setVisibility(View.VISIBLE);
+                                }
+                            }
+
+                            @Override
+                            public void onFailure(Call<StudentAttendanceResponse> call, Throwable t) {
                                 hideLoadingScreen();
                                 System.out.println(t.getMessage());
                                 Toast.makeText(ProfessorAttendanceActivity.this, "An error has occured. Try again later.", Toast.LENGTH_SHORT) .show();
@@ -129,15 +183,18 @@ public class ProfessorAttendanceActivity extends AppCompatActivity {
             }
         });
 
-        professorDateSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+        currentDateExcelButton.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-                //start request
+            public void onClick(View view) {
+                //generate excel
             }
+        });
 
+        totalExcelButton.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onNothingSelected(AdapterView<?> adapterView) {
-
+            public void onClick(View view) {
+                //create server request
+                //generate excel if succeeded
             }
         });
     }
@@ -176,5 +233,9 @@ public class ProfessorAttendanceActivity extends AppCompatActivity {
 
     public void setAttendanceList(List<StudentAttendance> attendanceList) {
         this.attendanceList = attendanceList;
+    }
+
+    public void setTotalAttendanceList(List<StudentAttendance> totalAttendanceList) {
+        this.totalAttendanceList = totalAttendanceList;
     }
 }

@@ -42,7 +42,12 @@ public class ScheduleCalendar {
     @Override
     public String toString() {
         if (id != -1) {
-            return date.toString() + " " + timeStart.toString() + "-" + timeStop.toString() + " Group " + grup;
+            if(grup == 0) {
+                return date.toString() + " " + timeStart.toString() + "-" + timeStop.toString() + " All Groups";
+            }
+            else {
+                return date.toString() + " " + timeStart.toString() + "-" + timeStop.toString() + " Group " + grup;
+            }
         }
         else {
             return "Select a schedule date";
