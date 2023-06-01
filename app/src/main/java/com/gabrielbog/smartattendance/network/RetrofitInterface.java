@@ -2,8 +2,11 @@ package com.gabrielbog.smartattendance.network;
 
 import com.gabrielbog.smartattendance.models.responses.LogInResponse;
 import com.gabrielbog.smartattendance.models.responses.QrCodeResponse;
+import com.gabrielbog.smartattendance.models.responses.ScheduleCalendarResponse;
 import com.gabrielbog.smartattendance.models.responses.StudentAttendanceResponse;
 import com.gabrielbog.smartattendance.models.responses.SubjectListResponse;
+
+import java.sql.Date;
 
 import retrofit2.Call;
 import retrofit2.http.Path;
@@ -25,4 +28,10 @@ public interface RetrofitInterface {
 
     @GET("/api/getSubjectAttendanceList/{studentId}&{subjectId}")
     Call<StudentAttendanceResponse> getSubjectAttendanceList(@Path("studentId") int studentId, @Path("subjectId") int subjectId);
+
+    @GET("/api/getScheduleCalendar/{professorId}&{subjectId}")
+    Call<ScheduleCalendarResponse> getScheduleCalendar(@Path("professorId") int professorId, @Path("subjectId") int subjectId);
+
+    @GET("/api/getAttendingStudentsList/{scanDate}&{scheduleId}")
+    Call<StudentAttendanceResponse> getAttendingStudentsList(@Path("scanDate") Date scanDate, @Path("scheduleId") int scheduleId);
 }

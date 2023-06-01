@@ -31,6 +31,12 @@
             android:layout_height="50dp"
             android:contentDescription="Subject"/>
 
+        <ListView
+            android:id="@+id/studentAttendanceListView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/studentSubjectSpinner" />
+
     </RelativeLayout>
 
 </RelativeLayout>

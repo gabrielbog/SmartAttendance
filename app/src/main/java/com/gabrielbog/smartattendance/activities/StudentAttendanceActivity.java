@@ -8,14 +8,17 @@ import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.gabrielbog.smartattendance.R;
 import com.gabrielbog.smartattendance.models.LogInCreditentials;
+import com.gabrielbog.smartattendance.models.StudentAttendance;
 import com.gabrielbog.smartattendance.models.Subject;
 import com.gabrielbog.smartattendance.models.responses.QrCodeResponse;
+import com.gabrielbog.smartattendance.models.responses.StudentAttendanceResponse;
 import com.gabrielbog.smartattendance.models.responses.SubjectListResponse;
 import com.gabrielbog.smartattendance.network.RetrofitInterface;
 import com.gabrielbog.smartattendance.network.RetrofitService;
@@ -33,9 +36,11 @@ public class StudentAttendanceActivity extends AppCompatActivity {
     private RelativeLayout studentAttendanceLayout;
     private LinearLayout studentAttendanceLoadingLayout;
     private Spinner studentSubjectSpinner;
+    private ListView studentAttendanceListView;
 
     //Lists
     private List<Subject> subjectList;
+    private List<StudentAttendance> attendanceList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,8 +52,10 @@ public class StudentAttendanceActivity extends AppCompatActivity {
         studentAttendanceLayout = (RelativeLayout) findViewById(R.id.studentAttendanceLayout);
         studentAttendanceLoadingLayout = (LinearLayout) findViewById(R.id.studentAttendanceLoadingLayout);
         studentSubjectSpinner = (Spinner) findViewById(R.id.studentSubjectSpinner);
+        studentAttendanceListView = (ListView) findViewById(R.id.studentAttendanceListView);
 
         subjectList = new ArrayList<>();
+        attendanceList = new ArrayList<>();
 
         showLoadingScreen();
         Call<SubjectListResponse> subjectListResponseCall = RetrofitService.getInstance().create(RetrofitInterface.class).getSubjectList(logInCreditentials.getLogInResponse().getId());
@@ -58,9 +65,9 @@ public class StudentAttendanceActivity extends AppCompatActivity {
                 if(response.body().getCode() == 1) {
                     hideLoadingScreen();
                     setSubjectList(response.body().getSubjectList());
-                    ArrayAdapter<Subject> adapter = new ArrayAdapter<Subject>(StudentAttendanceActivity.this, android.R.layout.simple_spinner_item, subjectList);
-                    adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-                    studentSubjectSpinner.setAdapter(adapter);
+                    ArrayAdapter<Subject> subjectArrayAdapter = new ArrayAdapter<Subject>(StudentAttendanceActivity.this, android.R.layout.simple_spinner_item, subjectList);
+                    subjectArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                    studentSubjectSpinner.setAdapter(subjectArrayAdapter);
                 }
                 else {
                     hideLoadingScreen();
@@ -78,7 +85,32 @@ public class StudentAttendanceActivity extends AppCompatActivity {
         studentSubjectSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-                Toast.makeText(StudentAttendanceActivity.this, subjectList.get(i).toString(), Toast.LENGTH_SHORT).show();
+
+                if(subjectList.size() > 0) { //only do this if the list isn't empty
+                    if(i > 0) {
+                        showLoadingScreen();
+                        Call<StudentAttendanceResponse> studentAttendanceResponseCall = RetrofitService.getInstance().create(RetrofitInterface.class).getSubjectAttendanceList(logInCreditentials.getLogInResponse().getId(), subjectList.get(i).getId());
+                        studentAttendanceResponseCall.enqueue(new Callback<StudentAttendanceResponse>() {
+                            @Override
+                            public void onResponse(Call<StudentAttendanceResponse> call, Response<StudentAttendanceResponse> response) {
+                                if(response.body().getCode() == 1) {
+                                    hideLoadingScreen();
+                                    setAttendanceList(response.body().getStudentAttendanceList());
+                                    ArrayAdapter<StudentAttendance> studentAttendanceArrayAdapter = new ArrayAdapter<StudentAttendance>(StudentAttendanceActivity.this, android.R.layout.simple_list_item_1, attendanceList);
+                                    studentAttendanceArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                                    studentAttendanceListView.setAdapter(studentAttendanceArrayAdapter);
+                                }
+                            }
+
+                            @Override
+                            public void onFailure(Call<StudentAttendanceResponse> call, Throwable t) {
+                                hideLoadingScreen();
+                                System.out.println(t.getMessage());
+                                Toast.makeText(StudentAttendanceActivity.this, "An error has occured. Try again later.", Toast.LENGTH_SHORT) .show();
+                            }
+                        });
+                    }
+                }
             }
 
             @Override
@@ -111,6 +143,11 @@ public class StudentAttendanceActivity extends AppCompatActivity {
     }
 
     public void setSubjectList(List<Subject> subjectList) {
+        subjectList.add(0, new Subject(-1, "Select a subject", 0, 0, "", 0, 0, 0));
         this.subjectList = subjectList;
+    }
+
+    public void setAttendanceList(List<StudentAttendance> attendanceList) {
+        this.attendanceList = attendanceList;
     }
 }

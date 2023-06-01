@@ -119,9 +119,13 @@ public class MainActivity extends AppCompatActivity {
                     Intent i = new Intent(MainActivity.this, StudentAttendanceActivity.class);
                     startActivity(i);
                 }
-
-                //professor
-                //todo
+                else if(logInCreditentials.getLogInResponse().getIsAdmin() == 1) { //professor
+                    Intent i = new Intent(MainActivity.this, ProfessorAttendanceActivity.class);
+                    startActivity(i);
+                }
+                else { //in case of possible exploits
+                    Toast.makeText(MainActivity.this, "Invalid server answer.", Toast.LENGTH_SHORT) .show();
+                }
             }
         });
     }

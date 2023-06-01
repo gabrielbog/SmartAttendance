@@ -40,15 +40,10 @@ public class StudentAttendance {
     @Override
     public String toString() {
         if(type == 0) {
-            return "StudentAttendance{" +
-                    "date=" + date +
-                    ", firstName='" + firstName + '\'' +
-                    ", lastName='" + lastName + '\'' +
-                    ", state='" + state + '\'' +
-                    '}';
+            return lastName + " " + firstName + " - " + state;
         }
         else {
-            return date + " " + state;
+            return date.toString() + " " + state;
         }
     }
 }
