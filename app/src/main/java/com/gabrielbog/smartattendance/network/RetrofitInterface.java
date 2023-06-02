@@ -1,6 +1,7 @@
 package com.gabrielbog.smartattendance.network;
 
 import com.gabrielbog.smartattendance.models.responses.LogInResponse;
+import com.gabrielbog.smartattendance.models.responses.ProfessorGrupsResponse;
 import com.gabrielbog.smartattendance.models.responses.QrCodeResponse;
 import com.gabrielbog.smartattendance.models.responses.ScheduleCalendarResponse;
 import com.gabrielbog.smartattendance.models.responses.StudentAttendanceResponse;
@@ -34,4 +35,10 @@ public interface RetrofitInterface {
 
     @GET("/api/getAttendingStudentsList/{scanDate}&{scheduleId}")
     Call<StudentAttendanceResponse> getAttendingStudentsList(@Path("scanDate") Date scanDate, @Path("scheduleId") int scheduleId);
+
+    @GET("/api/getProfessorGrups/{professorId}&{subjectId}")
+    Call<ProfessorGrupsResponse> getProfessorGrups(@Path("professorId") int professorId, @Path("subjectId") int subjectId);
+
+    @GET("/api/getTotalAttendingStudentsList/{professorId}&{subjectId}&{grup}")
+    Call<StudentAttendanceResponse> getTotalAttendingStudentsList(@Path("professorId") int professorId, @Path("subjectId") int subjectId, @Path("grup") int grup);
 }
