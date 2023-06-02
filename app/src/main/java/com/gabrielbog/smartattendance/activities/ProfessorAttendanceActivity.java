@@ -1,8 +1,17 @@
 package com.gabrielbog.smartattendance.activities;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
+import android.Manifest;
+import android.content.ActivityNotFoundException;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.AdapterView;
@@ -15,6 +24,7 @@ import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.gabrielbog.smartattendance.R;
+import com.gabrielbog.smartattendance.constants.Constants;
 import com.gabrielbog.smartattendance.models.LogInCreditentials;
 import com.gabrielbog.smartattendance.models.ScheduleCalendar;
 import com.gabrielbog.smartattendance.models.StudentAttendance;
@@ -25,6 +35,15 @@ import com.gabrielbog.smartattendance.models.responses.SubjectListResponse;
 import com.gabrielbog.smartattendance.network.RetrofitInterface;
 import com.gabrielbog.smartattendance.network.RetrofitService;
 
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,6 +52,9 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public class ProfessorAttendanceActivity extends AppCompatActivity {
+
+    //Permission Code
+    private static final int EXTERNAL_STORAGE_PERMISSION_CODE = 101;
 
     //UI Elements
     private RelativeLayout professorAttendanceLayout;
@@ -104,6 +126,9 @@ public class ProfessorAttendanceActivity extends AppCompatActivity {
         professorSubjectSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                professorDateSpinner.setVisibility(View.GONE);
+                professorAttendanceListView.setVisibility(View.GONE);
+                professorButtonLayout.setVisibility(View.GONE);
                 if(subjectList.size() > 0) { //only do this if the list isn't empty
                     if(i > 0) {
                         showLoadingScreen();
@@ -118,8 +143,6 @@ public class ProfessorAttendanceActivity extends AppCompatActivity {
                                     scheduleCalendarArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
                                     professorDateSpinner.setAdapter(scheduleCalendarArrayAdapter);
                                     professorDateSpinner.setVisibility(View.VISIBLE);
-                                    professorAttendanceListView.setVisibility(View.GONE);
-                                    professorButtonLayout.setVisibility(View.GONE);
                                 }
                             }
 
@@ -146,10 +169,10 @@ public class ProfessorAttendanceActivity extends AppCompatActivity {
         professorDateSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-                if(scheduleCalendarList.size() > 0) { //only do this if the list isn't empty
-                    System.out.println("here " + i);
+                professorAttendanceListView.setVisibility(View.GONE);
+                professorButtonLayout.setVisibility(View.GONE);
+                if(scheduleCalendarList.size() > 0) { //only do this if the list isn't emptys
                     if (i > 0) {
-                        System.out.println("there");
                         showLoadingScreen();
                         Call<StudentAttendanceResponse> studentAttendanceResponseCall = RetrofitService.getInstance().create(RetrofitInterface.class).getAttendingStudentsList(scheduleCalendarList.get(i).getDate(), scheduleCalendarList.get(i).getId());
                         studentAttendanceResponseCall.enqueue(new Callback<StudentAttendanceResponse>() {
@@ -186,17 +209,125 @@ public class ProfessorAttendanceActivity extends AppCompatActivity {
         currentDateExcelButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //generate excel
+                if (ContextCompat.checkSelfPermission(ProfessorAttendanceActivity.this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED
+                || ContextCompat.checkSelfPermission(ProfessorAttendanceActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED) {
+                    ActivityCompat.requestPermissions(ProfessorAttendanceActivity.this, new String[] { Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE }, EXTERNAL_STORAGE_PERMISSION_CODE);
+                }
+                else {
+                    generateExcelForAttendanceList();
+                }
             }
         });
 
         totalExcelButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //create server request
-                //generate excel if succeeded
+                if (ContextCompat.checkSelfPermission(ProfessorAttendanceActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED) {
+                    ActivityCompat.requestPermissions(ProfessorAttendanceActivity.this, new String[] { Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE }, EXTERNAL_STORAGE_PERMISSION_CODE);
+                }
+                else {
+                    generateExcelForTotalAttendanceList();
+                }
             }
         });
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults)
+    {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        if (requestCode == EXTERNAL_STORAGE_PERMISSION_CODE) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                Toast.makeText(ProfessorAttendanceActivity.this, "Please select one of the options again.", Toast.LENGTH_SHORT) .show();
+            }
+            else {
+                Toast.makeText(ProfessorAttendanceActivity.this, "External storage permissions are required to generate tables.", Toast.LENGTH_SHORT) .show();
+            }
+        }
+    }
+
+    public void generateExcelForAttendanceList() {
+
+        Subject subject = (Subject) professorSubjectSpinner.getSelectedItem();
+        ScheduleCalendar selectedDate = (ScheduleCalendar) professorDateSpinner.getSelectedItem();
+
+        HSSFWorkbook workbook = new HSSFWorkbook();
+        Cell cell = null;
+        Row row = null;
+
+        Sheet sheet = workbook.createSheet("Attendance List");
+        row = sheet.createRow(0);
+
+        cell = row.createCell(0);
+        cell.setCellValue("Name");
+        cell = row.createCell(1);
+        cell.setCellValue("Date");
+        cell = row.createCell(2);
+        cell.setCellValue("State");
+
+        sheet.setColumnWidth(0, 50 * 200);
+        sheet.setColumnWidth(1, 50 * 200);
+        sheet.setColumnWidth(2, 50 * 200);
+
+        int i = 1;
+        for(StudentAttendance studentAttendance : attendanceList) {
+
+            Row currentRow = sheet.createRow(i);
+
+            cell = currentRow.createCell(0);
+            cell.setCellValue(studentAttendance.getLastName() + " " + studentAttendance.getFirstName());
+            cell = currentRow.createCell(1);
+            cell.setCellValue(selectedDate.getDate().toString());
+            cell = currentRow.createCell(2);
+            cell.setCellValue(studentAttendance.getState());
+
+            sheet.setColumnWidth(0, 50 * 200);
+            sheet.setColumnWidth(1, 50 * 200);
+            sheet.setColumnWidth(2, 50 * 200);
+
+            ++i;
+        }
+
+        //set externalFilesDir based on android version
+
+        boolean rootFolderResult;
+        File rootFolder = new File(getExternalFilesDir(null) + File.separator + Constants.BASE_FOLDER_NAME + File.separator + Constants.TABLES_FOLDER_NAME);
+        if(!rootFolder.exists()) {
+            rootFolderResult = rootFolder.mkdirs();
+        }
+        else {
+            rootFolderResult = true;
+        }
+
+        if(rootFolderResult == true) {
+            String path = getExternalFilesDir(null) + File.separator + Constants.BASE_FOLDER_NAME + File.separator + Constants.TABLES_FOLDER_NAME + File.separator + selectedDate.getDate().toString() + "-" + subject.getName() + ".xls";
+            try {
+                FileOutputStream outputStream = new FileOutputStream(path);
+                workbook.write(outputStream);
+
+                try {
+                    Intent intent = new Intent(Intent.ACTION_VIEW); //start excel right from the app
+                    intent.setDataAndType(Uri.fromFile(new File(path)),"application/vnd.ms-excel");
+                    startActivity(intent);
+                }
+                catch (ActivityNotFoundException e) {
+                    Toast.makeText(ProfessorAttendanceActivity.this, "The file has been saved in /" + Constants.BASE_FOLDER_NAME + "/" + Constants.TABLES_FOLDER_NAME + "/.", Toast.LENGTH_SHORT) .show();
+                }
+            }
+            catch (IOException e) {
+                Toast.makeText(ProfessorAttendanceActivity.this, "Couldn't create the table file.", Toast.LENGTH_SHORT) .show();
+            }
+        }
+        else {
+            Toast.makeText(ProfessorAttendanceActivity.this, "An error has occured. Please try again.", Toast.LENGTH_SHORT) .show();
+        }
+
+    }
+
+    public void generateExcelForTotalAttendanceList() {
+        //start request, then generate excel file if request succeeds
+        Toast.makeText(ProfessorAttendanceActivity.this, "test", Toast.LENGTH_SHORT) .show();
     }
 
     public void showLoadingScreen() {
