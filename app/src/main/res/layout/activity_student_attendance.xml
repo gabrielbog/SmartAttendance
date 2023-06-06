@@ -31,11 +31,38 @@
             android:layout_height="50dp"
             android:contentDescription="Subject"/>
 
+        <TextView
+            android:id="@+id/attendanceTextView"
+            android:layout_width="match_parent"
+            android:layout_height="35dp"
+            android:layout_below="@+id/studentSubjectSpinner"
+            android:textSize="20dp"
+            android:gravity="center"
+            android:text="Attendance Text" />
+
+        <TextView
+            android:id="@+id/absenceTextView"
+            android:layout_width="match_parent"
+            android:layout_height="35dp"
+            android:layout_below="@+id/attendanceTextView"
+            android:textSize="20dp"
+            android:gravity="center"
+            android:text="Absence Text" />
+
+        <TextView
+            android:id="@+id/allowedAbsenceTextView"
+            android:layout_width="match_parent"
+            android:layout_height="35dp"
+            android:layout_below="@+id/absenceTextView"
+            android:textSize="20dp"
+            android:gravity="center"
+            android:text="Allowed Absence Text" />
+
         <ListView
             android:id="@+id/studentAttendanceListView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/studentSubjectSpinner" />
+            android:layout_below="@+id/allowedAbsenceTextView" />
 
     </RelativeLayout>
 

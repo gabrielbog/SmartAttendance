@@ -31,6 +31,9 @@ import retrofit2.Response;
 
 public class ScannerActivity extends AppCompatActivity {
 
+    //Variables
+    private int buttonState;
+
     //Hardware Elements
     private Vibrator vibrator;
 
@@ -49,6 +52,7 @@ public class ScannerActivity extends AppCompatActivity {
 
         LogInCreditentials logInCreditentials = LogInCreditentials.getInstance();
 
+        buttonState = 0;
         vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
 
         scannerLayout = (RelativeLayout) findViewById(R.id.scannerLayout);
@@ -58,12 +62,11 @@ public class ScannerActivity extends AppCompatActivity {
         hintText = findViewById(R.id.hintText);
         hintText.setText("Please scan the QR Code provided by the professor.");
         resultButton = (Button) findViewById(R.id.resultButton);
-        resultButton.setVisibility(View.GONE); //custom behavior depending on code state
+        resultButton.setVisibility(View.GONE);
 
         codeScanner = new CodeScanner(this, scannerView);
         codeScanner.setAutoFocusEnabled(true);
         codeScanner.setFormats(CodeScanner.ALL_FORMATS);
-        //codeScanner.setScanMode(ScanMode.CONTINUOUS);
         codeScanner.startPreview();
 
         codeScanner.setDecodeCallback(new DecodeCallback() {
@@ -83,6 +86,15 @@ public class ScannerActivity extends AppCompatActivity {
                                     hideLoadingScreen();
                                     resultButton.setVisibility(View.VISIBLE);
                                     hintText.setText(response.body().getQrString());
+
+                                    int buttonState = response.body().getCode();
+                                    setButtonState(buttonState);
+                                    if(buttonState == 2) {
+                                        resultButton.setText("Return to the main page");
+                                    }
+                                    else {
+                                        resultButton.setText("Scan again");
+                                    }
                                 }
 
                                 @Override
@@ -90,6 +102,9 @@ public class ScannerActivity extends AppCompatActivity {
                                     hideLoadingScreen();
                                     resultButton.setVisibility(View.VISIBLE);
                                     hintText.setText("Try again later.");
+
+                                    setButtonState(0);
+                                    resultButton.setText("Scan again");
                                 }
                             });
                         }
@@ -97,6 +112,9 @@ public class ScannerActivity extends AppCompatActivity {
                             hideLoadingScreen();
                             resultButton.setVisibility(View.VISIBLE);
                             hintText.setText("Invalid QR code."); //done here so the server isn't overloaded with requests
+
+                            setButtonState(0);
+                            resultButton.setText("Scan again");
                         }
 
                         if(Build.VERSION.SDK_INT >= 26) { //for android 8 onwards
@@ -109,6 +127,24 @@ public class ScannerActivity extends AppCompatActivity {
                 });
             }
         });
+
+        resultButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(buttonState == 2) {
+                    finish();
+                }
+                else {
+                    hintText.setText("Please scan the QR Code provided by the professor.");
+                    codeScanner.startPreview();
+                    resultButton.setVisibility(View.GONE);
+                }
+            }
+        });
+    }
+
+    public void setButtonState(int buttonState) {
+        this.buttonState = buttonState;
     }
 
     public void showLoadingScreen() {
@@ -126,10 +162,12 @@ public class ScannerActivity extends AppCompatActivity {
     }
 
     public void enableFocus() {
-        //in case a return button will be added
+        resultButton.setFocusableInTouchMode(true);
+        resultButton.setFocusable(true);
     }
 
     public void disableFocus() {
-        //in case a return button will be added
+        resultButton.setFocusableInTouchMode(false);
+        resultButton.setFocusable(false);
     }
 }

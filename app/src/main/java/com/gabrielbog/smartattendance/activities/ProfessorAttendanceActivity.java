@@ -5,13 +5,16 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.core.content.FileProvider;
 
 import android.Manifest;
 import android.content.ActivityNotFoundException;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.view.View;
@@ -25,6 +28,7 @@ import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.Toast;
 
+import com.gabrielbog.smartattendance.BuildConfig;
 import com.gabrielbog.smartattendance.R;
 import com.gabrielbog.smartattendance.constants.Constants;
 import com.gabrielbog.smartattendance.models.LogInCreditentials;
@@ -40,7 +44,10 @@ import com.gabrielbog.smartattendance.network.RetrofitInterface;
 import com.gabrielbog.smartattendance.network.RetrofitService;
 
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.hssf.util.HSSFColor;
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.Font;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -48,6 +55,7 @@ import org.apache.poi.ss.usermodel.Workbook;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.sql.Date;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -351,10 +359,16 @@ public class ProfessorAttendanceActivity extends AppCompatActivity {
             ++i;
         }
 
-        //set externalFilesDir based on android version
-
         boolean rootFolderResult;
-        File rootFolder = new File(getExternalFilesDir(null) + File.separator + Constants.BASE_FOLDER_NAME + File.separator + Constants.TABLES_FOLDER_NAME);
+        String rootFolderPath = null;
+        if(Build.VERSION.SDK_INT >= 26) { //for android 10 onwards
+            rootFolderPath = getExternalFilesDir(null) + File.separator + Constants.BASE_FOLDER_NAME + File.separator + Constants.TABLES_FOLDER_NAME;
+        }
+        else {
+            rootFolderPath = Environment.getExternalStorageDirectory() + File.separator + Constants.BASE_FOLDER_NAME + File.separator + Constants.TABLES_FOLDER_NAME;
+        }
+
+        File rootFolder = new File(rootFolderPath);
         if(!rootFolder.exists()) {
             rootFolderResult = rootFolder.mkdirs();
         }
@@ -363,14 +377,24 @@ public class ProfessorAttendanceActivity extends AppCompatActivity {
         }
 
         if(rootFolderResult == true) {
-            String path = getExternalFilesDir(null) + File.separator + Constants.BASE_FOLDER_NAME + File.separator + Constants.TABLES_FOLDER_NAME + File.separator + selectedDate.getDate().toString() + " - " + subject.getName() + " - Group " + selectedDate.getGrup() + ".xls";
+
+            String filePath = null;
+            if(Build.VERSION.SDK_INT >= 26) { //for android 10 onwards
+                filePath = getExternalFilesDir(null) + File.separator + Constants.BASE_FOLDER_NAME + File.separator + Constants.TABLES_FOLDER_NAME + File.separator + selectedDate.getDate().toString() + " - " + selectedDate.getTimeStart() + "-" + selectedDate.getTimeStop() + " - " + subject.getName() + " - Group " + selectedDate.getGrup() + ".xls";
+            }
+            else {
+                filePath = Environment.getExternalStorageDirectory() + File.separator + Constants.BASE_FOLDER_NAME + File.separator + Constants.TABLES_FOLDER_NAME + File.separator + selectedDate.getDate().toString() + " - " + selectedDate.getTimeStart() + "-" + selectedDate.getTimeStop() + " - " + subject.getName() + " - Group " + selectedDate.getGrup() + ".xls";
+            }
+
             try {
-                FileOutputStream outputStream = new FileOutputStream(path);
+                FileOutputStream outputStream = new FileOutputStream(filePath);
                 workbook.write(outputStream);
 
                 try {
                     Intent intent = new Intent(Intent.ACTION_VIEW); //start excel right from the app
-                    intent.setDataAndType(Uri.fromFile(new File(path)),"application/vnd.ms-excel");
+                    Uri uri = FileProvider.getUriForFile(ProfessorAttendanceActivity.this, ProfessorAttendanceActivity.this.getPackageName() + ".provider", new File(filePath));
+                    intent.setDataAndType(uri,"application/vnd.ms-excel");
+                    intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
                     startActivity(intent);
                 }
                 catch (ActivityNotFoundException e) {
@@ -423,14 +447,20 @@ public class ProfessorAttendanceActivity extends AppCompatActivity {
                 sheet.setColumnWidth(2, 50 * 200);
 
                 int i = 1;
+                Date previousDate = totalAttendanceList.get(0).getDate();
                 for(StudentAttendance studentAttendance : totalAttendanceList) {
+
+                    if(!previousDate.equals(studentAttendance.getDate())) {
+                        previousDate = studentAttendance.getDate();
+                        ++i; //make a space between days for consistency
+                    }
 
                     Row currentRow = sheet.createRow(i);
 
                     cell = currentRow.createCell(0);
                     cell.setCellValue(studentAttendance.getLastName() + " " + studentAttendance.getFirstName());
                     cell = currentRow.createCell(1);
-                    cell.setCellValue(studentAttendance.getDate().toString());
+                    cell.setCellValue(studentAttendance.getDate().toString() + " " + studentAttendance.getTimeStart() + "-" + studentAttendance.getTimeStop());
                     cell = currentRow.createCell(2);
                     cell.setCellValue(studentAttendance.getState());
 
@@ -441,10 +471,16 @@ public class ProfessorAttendanceActivity extends AppCompatActivity {
                     ++i;
                 }
 
-                //set externalFilesDir based on android version
-
                 boolean rootFolderResult;
-                File rootFolder = new File(getExternalFilesDir(null) + File.separator + Constants.BASE_FOLDER_NAME + File.separator + Constants.TABLES_FOLDER_NAME);
+                String rootFolderPath = null;
+                if(Build.VERSION.SDK_INT >= 26) { //for android 10 onwards
+                    rootFolderPath = getExternalFilesDir(null) + File.separator + Constants.BASE_FOLDER_NAME + File.separator + Constants.TABLES_FOLDER_NAME;
+                }
+                else {
+                    rootFolderPath = Environment.getExternalStorageDirectory() + File.separator + Constants.BASE_FOLDER_NAME + File.separator + Constants.TABLES_FOLDER_NAME;
+                }
+
+                File rootFolder = new File(rootFolderPath);
                 if(!rootFolder.exists()) {
                     rootFolderResult = rootFolder.mkdirs();
                 }
@@ -453,14 +489,24 @@ public class ProfessorAttendanceActivity extends AppCompatActivity {
                 }
 
                 if(rootFolderResult == true) {
-                    String path = getExternalFilesDir(null) + File.separator + Constants.BASE_FOLDER_NAME + File.separator + Constants.TABLES_FOLDER_NAME + File.separator + "Total Attendance - " + chosenSubject.getName() + " - Group " + grup + ".xls";
+
+                    String filePath = null;
+                    if(Build.VERSION.SDK_INT >= 26) { //for android 10 onwards
+                        filePath = getExternalFilesDir(null) + File.separator + Constants.BASE_FOLDER_NAME + File.separator + Constants.TABLES_FOLDER_NAME + File.separator + "Total Attendance - " + chosenSubject.getName() + " - Group " + grup + ".xls";
+                    }
+                    else {
+                        filePath = Environment.getExternalStorageDirectory() + File.separator + Constants.BASE_FOLDER_NAME + File.separator + Constants.TABLES_FOLDER_NAME + File.separator + "Total Attendance - " + chosenSubject.getName() + " - Group " + grup + ".xls";
+                    }
+
                     try {
-                        FileOutputStream outputStream = new FileOutputStream(path);
+                        FileOutputStream outputStream = new FileOutputStream(filePath);
                         workbook.write(outputStream);
 
                         try {
                             Intent intent = new Intent(Intent.ACTION_VIEW); //start excel right from the app
-                            intent.setDataAndType(Uri.fromFile(new File(path)),"application/vnd.ms-excel");
+                            Uri uri = FileProvider.getUriForFile(ProfessorAttendanceActivity.this, ProfessorAttendanceActivity.this.getPackageName() + ".provider", new File(filePath));
+                            intent.setDataAndType(uri,"application/vnd.ms-excel");
+                            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
                             startActivity(intent);
                         }
                         catch (ActivityNotFoundException e) {

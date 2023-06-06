@@ -2,6 +2,7 @@ package com.gabrielbog.smartattendance.activities;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.graphics.Color;
 import android.os.Bundle;
 import android.view.View;
 import android.view.WindowManager;
@@ -11,6 +12,7 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.gabrielbog.smartattendance.R;
@@ -36,6 +38,9 @@ public class StudentAttendanceActivity extends AppCompatActivity {
     private RelativeLayout studentAttendanceLayout;
     private LinearLayout studentAttendanceLoadingLayout;
     private Spinner studentSubjectSpinner;
+    private TextView attendanceTextView;
+    private TextView absenceTextView;
+    private TextView allowedAbsenceTextView;
     private ListView studentAttendanceListView;
 
     //Lists
@@ -52,6 +57,12 @@ public class StudentAttendanceActivity extends AppCompatActivity {
         studentAttendanceLayout = (RelativeLayout) findViewById(R.id.studentAttendanceLayout);
         studentAttendanceLoadingLayout = (LinearLayout) findViewById(R.id.studentAttendanceLoadingLayout);
         studentSubjectSpinner = (Spinner) findViewById(R.id.studentSubjectSpinner);
+        attendanceTextView = (TextView) findViewById(R.id.attendanceTextView);
+        attendanceTextView.setVisibility(View.GONE);
+        absenceTextView = (TextView) findViewById(R.id.absenceTextView);
+        absenceTextView.setVisibility(View.GONE);
+        allowedAbsenceTextView = (TextView) findViewById(R.id.allowedAbsenceTextView);
+        allowedAbsenceTextView.setVisibility(View.GONE);
         studentAttendanceListView = (ListView) findViewById(R.id.studentAttendanceListView);
 
         subjectList = new ArrayList<>();
@@ -86,6 +97,10 @@ public class StudentAttendanceActivity extends AppCompatActivity {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
 
+                attendanceTextView.setVisibility(View.GONE);
+                absenceTextView.setVisibility(View.GONE);
+                allowedAbsenceTextView.setVisibility(View.GONE);
+
                 if(subjectList.size() > 0) { //only do this if the list isn't empty
                     if(i > 0) {
                         showLoadingScreen();
@@ -99,6 +114,31 @@ public class StudentAttendanceActivity extends AppCompatActivity {
                                     ArrayAdapter<StudentAttendance> studentAttendanceArrayAdapter = new ArrayAdapter<StudentAttendance>(StudentAttendanceActivity.this, android.R.layout.simple_list_item_1, attendanceList);
                                     studentAttendanceArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
                                     studentAttendanceListView.setAdapter(studentAttendanceArrayAdapter);
+
+                                    int attendanceCount = 0;
+                                    int absenceCount = 0;
+                                    for(StudentAttendance studentAttendance : attendanceList) {
+                                        if(studentAttendance.getState().equals("present")) {
+                                            attendanceCount++;
+                                        }
+                                        else if(studentAttendance.getState().equals("absent")) {
+                                            absenceCount++;
+                                        }
+                                    }
+                                    attendanceTextView.setText("Attendance: " + attendanceCount + "/" + response.body().getCompleteCalendarCount());
+                                    absenceTextView.setText("Absences: " + absenceCount);
+                                    int absenceDifference = subjectList.get(i).getAbsencesAllowed() - absenceCount;
+                                    allowedAbsenceTextView.setText("Allowed Absences: " + absenceDifference);
+                                    if(absenceDifference < 0) {
+                                        allowedAbsenceTextView.setTextColor(Color.RED);
+                                    }
+                                    else {
+                                        allowedAbsenceTextView.setTextColor(Color.GREEN);
+                                    }
+
+                                    attendanceTextView.setVisibility(View.VISIBLE);
+                                    absenceTextView.setVisibility(View.VISIBLE);
+                                    allowedAbsenceTextView.setVisibility(View.VISIBLE);
                                 }
                             }
 

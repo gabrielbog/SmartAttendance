@@ -23,17 +23,15 @@
             android:layout_below="@+id/scannerView"
             android:textSize="30dp"
             android:layout_centerHorizontal="true"
-            android:layout_centerVertical="true"
-            android:text="Hello"/>
+            android:text="Hint Text"/>
 
         <Button
             android:id="@+id/resultButton"
             android:layout_width="300dp"
             android:layout_height="wrap_content"
             android:layout_centerHorizontal="true"
-            android:layout_centerVertical="true"
-            android:layout_below="@+id/hintText"
-            android:text="Hello"/>
+            android:layout_alignParentBottom="true"
+            android:text="Action Button"/>
 
     </RelativeLayout>
 
