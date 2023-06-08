@@ -21,6 +21,9 @@ public interface RetrofitInterface {
     @GET("/api/generateQrCode/{id}")
     Call<QrCodeResponse> generateQrCode(@Path("id") int id);
 
+    @GET("/api/refreshQrCode/{id}&{code}")
+    Call<QrCodeResponse> refreshQrCode(@Path("id") int id, @Path("code") String code);
+
     @GET("/api/scanQrCode/{id}&{code}")
     Call<QrCodeResponse> scanQrCode(@Path("id") int id, @Path("code") String code);
 

@@ -1,38 +1,87 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
+<RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:gravity="center"
     tools:context=".activities.GeneratorActivity">
 
-  <ImageView
-      android:id="@+id/qrCodeView"
-      android:layout_width="300dp"
-      android:layout_height="300dp"
-      android:layout_centerHorizontal="true"
-      android:layout_marginTop="50dp" />
-
-  <Space
+  <LinearLayout
+      android:id="@+id/generatorLoadingLayout"
       android:layout_width="match_parent"
-      android:layout_height="85dp" />
+      android:layout_height="match_parent"
+      android:orientation="vertical"
+      android:gravity="center"
+      tools:ignore="ExtraText">
 
-  <TextView
-      android:id="@+id/subjectText"
-      android:layout_width="match_parent"
-      android:layout_height="wrap_content"
-      android:textSize="25dp"
-      android:text="Hello World!"
-      android:gravity="center" />
-
-  <TextView
-      android:id="@+id/professorText"
-      android:layout_width="match_parent"
-      android:layout_height="wrap_content"
-      android:textSize="25dp"
-      android:text="Hello World!"
-      android:gravity="center" />
+    <ProgressBar
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
 
   </LinearLayout>
+
+  <LinearLayout
+      android:id="@+id/generatorLayout"
+      android:layout_width="match_parent"
+      android:layout_height="match_parent"
+      android:orientation="vertical"
+      android:gravity="center">
+
+    <ImageView
+        android:id="@+id/qrCodeView"
+        android:layout_width="300dp"
+        android:layout_height="300dp"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="50dp" />
+
+    <Space
+        android:layout_width="match_parent"
+        android:layout_height="50dp" />
+
+    <TextView
+        android:id="@+id/subjectText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="25dp"
+        android:text="Hello World!"
+        android:gravity="center" />
+
+    <TextView
+        android:id="@+id/professorText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="25dp"
+        android:text="Hello World!"
+        android:gravity="center" />
+
+    <TextView
+        android:id="@+id/grupText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="25dp"
+        android:text="Hello World!"
+        android:gravity="center" />
+
+    <Space
+        android:layout_width="match_parent"
+        android:layout_height="35dp" />
+
+    <TextView
+        android:id="@+id/availabilityText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="25dp"
+        android:text="Availability"
+        android:gravity="center" />
+
+    <TextView
+        android:id="@+id/timerText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="25dp"
+        android:text="00:00"
+        android:gravity="center" />
+
+  </LinearLayout>
+
+  </RelativeLayout>
