@@ -24,8 +24,8 @@ public class RetrofitService {
                 .setDateFormat("yyyy-MM-dd")
                 .registerTypeAdapter(Time.class, new JsonDeserializer<Time>() {
                     public Time deserialize(JsonElement json, Type typeofT, JsonDeserializationContext context) throws JsonParseException {
-                        LocalTime localTime = LocalTime.parse(json.getAsString());
-                        Time time = new Time(localTime.getHour(), localTime.getMinute(), localTime.getSecond()); //can't return Time.valueOf(localTime) for some reason, so this must be done instead
+                        String jsonString = json.getAsString();
+                        Time time = Time.valueOf(jsonString);
                         return time;
                     }
                 })

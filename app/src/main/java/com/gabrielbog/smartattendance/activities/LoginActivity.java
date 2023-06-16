@@ -56,7 +56,7 @@ public class LoginActivity extends AppCompatActivity {
                 }
                 else {
                     showLoadingScreen();
-                    Call<LogInResponse> logInCall = RetrofitService.getInstance().create(RetrofitInterface.class).getUserByCnpAndPassword(cnp, password);
+                    Call<LogInResponse> logInCall = RetrofitService.getInstance().create(RetrofitInterface.class).checkUserExistence(cnp, password);
                     logInCall.enqueue(new Callback<LogInResponse>() {
                         @Override
                         public void onResponse(Call<LogInResponse> call, Response<LogInResponse> response) {
