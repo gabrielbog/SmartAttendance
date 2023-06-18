@@ -63,7 +63,7 @@ public class LoginActivity extends AppCompatActivity {
 
                             if(response.body().getCode() == 1) {
                                 hideLoadingScreen();
-                                LogInCreditentials.createInstance(response.body()); //this just creates the instance, will be used to get the data nicer in the other activities
+                                LogInCreditentials.createInstance(response.body());
                                 Intent i = new Intent(LoginActivity.this, MainActivity.class);
                                 finish();
                                 startActivity(i);

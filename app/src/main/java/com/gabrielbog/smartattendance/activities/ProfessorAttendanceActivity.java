@@ -1,6 +1,7 @@
 package com.gabrielbog.smartattendance.activities;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
@@ -18,6 +19,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -26,6 +28,7 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.gabrielbog.smartattendance.BuildConfig;
@@ -153,7 +156,22 @@ public class ProfessorAttendanceActivity extends AppCompatActivity {
                                 if(response.body().getCode() == 1) {
                                     hideLoadingScreen();
                                     setScheduleCalendarList(response.body().getScheduleCalendarList());
-                                    ArrayAdapter<ScheduleCalendar> scheduleCalendarArrayAdapter = new ArrayAdapter<ScheduleCalendar>(ProfessorAttendanceActivity.this, android.R.layout.simple_list_item_1, scheduleCalendarList);
+                                    ArrayAdapter<ScheduleCalendar> scheduleCalendarArrayAdapter = new ArrayAdapter<ScheduleCalendar>(ProfessorAttendanceActivity.this, android.R.layout.simple_list_item_1, scheduleCalendarList) {
+                                        @Override
+                                        public View getDropDownView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
+                                            View view = super.getDropDownView(position, convertView, parent);
+                                            TextView textView = (TextView) view;
+                                            int[] colorValues = {
+                                                    Color.WHITE,
+                                                    Color.LTGRAY,
+                                                    Color.rgb(153, 153, 153), //dark gray
+                                                    Color.LTGRAY
+                                            };
+                                            int bgColor = colorValues[position % colorValues.length];
+                                            textView.setBackgroundColor(bgColor);
+                                            return view;
+                                        }
+                                    };
                                     scheduleCalendarArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
                                     professorDateSpinner.setAdapter(scheduleCalendarArrayAdapter);
                                     professorDateSpinner.setVisibility(View.VISIBLE);
@@ -379,12 +397,18 @@ public class ProfessorAttendanceActivity extends AppCompatActivity {
         if(rootFolderResult == true) {
 
             String filePath = null;
+            String timeStart = selectedDate.getTimeStart().toString();
+            timeStart = timeStart.replaceAll(":", ".");
+            String timeStop = selectedDate.getTimeStop().toString();
+            timeStop = timeStop.replaceAll(":", ".");
             if(Build.VERSION.SDK_INT >= 26) { //for android 10 onwards
-                filePath = getExternalFilesDir(null) + File.separator + Constants.BASE_FOLDER_NAME + File.separator + Constants.TABLES_FOLDER_NAME + File.separator + selectedDate.getDate().toString() + " - " + selectedDate.getTimeStart() + "-" + selectedDate.getTimeStop() + " - " + subject.getName() + " - Group " + selectedDate.getGrup() + ".xls";
+                filePath = getExternalFilesDir(null) + File.separator + Constants.BASE_FOLDER_NAME + File.separator + Constants.TABLES_FOLDER_NAME + File.separator + selectedDate.getDate().toString() + " - " + timeStart + "-" + timeStop + " - " + subject.getName() + " - Group " + selectedDate.getGrup() + ".xls";
             }
             else {
-                filePath = Environment.getExternalStorageDirectory() + File.separator + Constants.BASE_FOLDER_NAME + File.separator + Constants.TABLES_FOLDER_NAME + File.separator + selectedDate.getDate().toString() + " - " + selectedDate.getTimeStart() + "-" + selectedDate.getTimeStop() + " - " + subject.getName() + " - Group " + selectedDate.getGrup() + ".xls";
+                filePath = Environment.getExternalStorageDirectory() + File.separator + Constants.BASE_FOLDER_NAME + File.separator + Constants.TABLES_FOLDER_NAME + File.separator + selectedDate.getDate().toString() + " - " + timeStart + "-" + timeStop + " - " + subject.getName() + " - Group " + selectedDate.getGrup() + ".xls";
             }
+
+            System.out.println(filePath);
 
             try {
                 FileOutputStream outputStream = new FileOutputStream(filePath);

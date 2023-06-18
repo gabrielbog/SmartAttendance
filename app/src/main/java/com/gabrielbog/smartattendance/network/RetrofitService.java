@@ -1,5 +1,6 @@
 package com.gabrielbog.smartattendance.network;
 
+import com.gabrielbog.smartattendance.constants.Constants;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonDeserializationContext;
@@ -32,7 +33,7 @@ public class RetrofitService {
                 .create();
 
         Retrofit retrofitInstance = new Retrofit.Builder()
-                .baseUrl("http://192.168.1.2:8080/")
+                .baseUrl("http://" + Constants.SERVER_IP + ":" + Constants.SERVER_PORT + "/")
                 .addConverterFactory(GsonConverterFactory.create(gson))
                 .build();
         return retrofitInstance;
