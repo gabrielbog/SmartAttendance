@@ -13,6 +13,7 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.Space;
 import android.widget.TextView;
 
 import com.gabrielbog.smartattendance.R;
@@ -47,6 +48,8 @@ public class GeneratorActivity extends AppCompatActivity {
     private TextView grupText;
     private TextView availabilityText;
     private TextView timerText;
+    private Space generatorSpace1;
+    private Space generatorSpace2;
     private ImageView qrCodeView;
     private QRGEncoder qrgEncoder;
 
@@ -78,6 +81,8 @@ public class GeneratorActivity extends AppCompatActivity {
         }
         availabilityText = (TextView) findViewById(R.id.availabilityText);
         timerText = (TextView) findViewById(R.id.timerText);
+        generatorSpace1 = (Space) findViewById(R.id.generatorSpace1);
+        generatorSpace2 = (Space) findViewById(R.id.generatorSpace2);
         qrCodeView = (ImageView) findViewById(R.id.qrCodeView);
 
         setQrCodeImage(qrCodeResponse.getQrString());
@@ -160,6 +165,8 @@ public class GeneratorActivity extends AppCompatActivity {
         grupText.setVisibility(View.GONE);
         availabilityText.setVisibility(View.GONE);
         timerText.setVisibility(View.GONE);
+        generatorSpace1.setVisibility(View.GONE);
+        generatorSpace2.setVisibility(View.GONE);
         qrCodeView.setVisibility(View.GONE);
     }
 
