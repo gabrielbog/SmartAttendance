@@ -320,7 +320,6 @@ public class ProfessorAttendanceActivity extends AppCompatActivity {
             public void onClick(DialogInterface dialogInterface, int i) {
                 ProfessorGrups element = (ProfessorGrups) spinner.getSelectedItem();
                 generateExcelForTotalAttendanceList(professorId, subjectId, element.getGrup());
-                //dialogInterface.dismiss();
             }
         });
 
@@ -354,9 +353,9 @@ public class ProfessorAttendanceActivity extends AppCompatActivity {
         cell = row.createCell(2);
         cell.setCellValue("State");
 
-        sheet.setColumnWidth(0, 50 * 200);
-        sheet.setColumnWidth(1, 50 * 200);
-        sheet.setColumnWidth(2, 50 * 200);
+        sheet.setColumnWidth(0, 50 * 120);
+        sheet.setColumnWidth(1, 50 * 80);
+        sheet.setColumnWidth(2, 50 * 80);
 
         int i = 1;
         for(StudentAttendance studentAttendance : attendanceList) {
@@ -369,10 +368,6 @@ public class ProfessorAttendanceActivity extends AppCompatActivity {
             cell.setCellValue(selectedDate.getDate().toString());
             cell = currentRow.createCell(2);
             cell.setCellValue(studentAttendance.getState());
-
-            sheet.setColumnWidth(0, 50 * 200);
-            sheet.setColumnWidth(1, 50 * 200);
-            sheet.setColumnWidth(2, 50 * 200);
 
             ++i;
         }
@@ -401,11 +396,19 @@ public class ProfessorAttendanceActivity extends AppCompatActivity {
             timeStart = timeStart.replaceAll(":", ".");
             String timeStop = selectedDate.getTimeStop().toString();
             timeStop = timeStop.replaceAll(":", ".");
-            if(Build.VERSION.SDK_INT >= 26) { //for android 10 onwards
-                filePath = getExternalFilesDir(null) + File.separator + Constants.BASE_FOLDER_NAME + File.separator + Constants.TABLES_FOLDER_NAME + File.separator + selectedDate.getDate().toString() + " - " + timeStart + "-" + timeStop + " - " + subject.getName() + " - Group " + selectedDate.getGrup() + ".xls";
+            String groupName = null;
+            if(selectedDate.getGrup() == 0) {
+                groupName = "All Groups";
             }
             else {
-                filePath = Environment.getExternalStorageDirectory() + File.separator + Constants.BASE_FOLDER_NAME + File.separator + Constants.TABLES_FOLDER_NAME + File.separator + selectedDate.getDate().toString() + " - " + timeStart + "-" + timeStop + " - " + subject.getName() + " - Group " + selectedDate.getGrup() + ".xls";
+                groupName = "Group " + selectedDate.getGrup();
+            }
+
+            if(Build.VERSION.SDK_INT >= 26) { //for android 10 onwards
+                filePath = getExternalFilesDir(null) + File.separator + Constants.BASE_FOLDER_NAME + File.separator + Constants.TABLES_FOLDER_NAME + File.separator + selectedDate.getDate().toString() + " - " + timeStart + "-" + timeStop + " - " + subject.getName() + " - " + groupName + ".xls";
+            }
+            else {
+                filePath = Environment.getExternalStorageDirectory() + File.separator + Constants.BASE_FOLDER_NAME + File.separator + Constants.TABLES_FOLDER_NAME + File.separator + selectedDate.getDate().toString() + " - " + timeStart + "-" + timeStop + " - " + subject.getName() + " - " + groupName + ".xls";
             }
 
             System.out.println(filePath);
@@ -466,9 +469,9 @@ public class ProfessorAttendanceActivity extends AppCompatActivity {
                 cell = row.createCell(2);
                 cell.setCellValue("State");
 
-                sheet.setColumnWidth(0, 50 * 200);
+                sheet.setColumnWidth(0, 50 * 120);
                 sheet.setColumnWidth(1, 50 * 200);
-                sheet.setColumnWidth(2, 50 * 200);
+                sheet.setColumnWidth(2, 50 * 80);
 
                 int i = 1;
                 Date previousDate = totalAttendanceList.get(0).getDate();
@@ -487,10 +490,6 @@ public class ProfessorAttendanceActivity extends AppCompatActivity {
                     cell.setCellValue(studentAttendance.getDate().toString() + " " + studentAttendance.getTimeStart() + "-" + studentAttendance.getTimeStop());
                     cell = currentRow.createCell(2);
                     cell.setCellValue(studentAttendance.getState());
-
-                    sheet.setColumnWidth(0, 50 * 200);
-                    sheet.setColumnWidth(1, 50 * 200);
-                    sheet.setColumnWidth(2, 50 * 200);
 
                     ++i;
                 }
@@ -515,11 +514,20 @@ public class ProfessorAttendanceActivity extends AppCompatActivity {
                 if(rootFolderResult == true) {
 
                     String filePath = null;
-                    if(Build.VERSION.SDK_INT >= 26) { //for android 10 onwards
-                        filePath = getExternalFilesDir(null) + File.separator + Constants.BASE_FOLDER_NAME + File.separator + Constants.TABLES_FOLDER_NAME + File.separator + "Total Attendance - " + chosenSubject.getName() + " - Group " + grup + ".xls";
+                    String groupName = null;
+
+                    if(grup == 0) {
+                        groupName = "All Groups";
                     }
                     else {
-                        filePath = Environment.getExternalStorageDirectory() + File.separator + Constants.BASE_FOLDER_NAME + File.separator + Constants.TABLES_FOLDER_NAME + File.separator + "Total Attendance - " + chosenSubject.getName() + " - Group " + grup + ".xls";
+                        groupName = "Group " + grup;
+                    }
+
+                    if(Build.VERSION.SDK_INT >= 26) { //for android 10 onwards
+                        filePath = getExternalFilesDir(null) + File.separator + Constants.BASE_FOLDER_NAME + File.separator + Constants.TABLES_FOLDER_NAME + File.separator + "Total Attendance - " + chosenSubject.getName() + " - " + groupName + ".xls";
+                    }
+                    else {
+                        filePath = Environment.getExternalStorageDirectory() + File.separator + Constants.BASE_FOLDER_NAME + File.separator + Constants.TABLES_FOLDER_NAME + File.separator + "Total Attendance - " + chosenSubject.getName() + " - " + groupName + ".xls";
                     }
 
                     try {
