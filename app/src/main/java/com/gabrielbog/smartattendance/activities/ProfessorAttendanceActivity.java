@@ -341,10 +341,9 @@ public class ProfessorAttendanceActivity extends AppCompatActivity {
 
         HSSFWorkbook workbook = new HSSFWorkbook();
         Cell cell = null;
-        Row row = null;
 
         Sheet sheet = workbook.createSheet("Attendance List");
-        row = sheet.createRow(0);
+        Row row = sheet.createRow(0);
 
         cell = row.createCell(0);
         cell.setCellValue("Name");
@@ -457,10 +456,9 @@ public class ProfessorAttendanceActivity extends AppCompatActivity {
 
                 HSSFWorkbook workbook = new HSSFWorkbook();
                 Cell cell = null;
-                Row row = null;
 
                 Sheet sheet = workbook.createSheet("Attendance List");
-                row = sheet.createRow(0);
+                Row row = sheet.createRow(0);
 
                 cell = row.createCell(0);
                 cell.setCellValue("Name");
@@ -496,7 +494,7 @@ public class ProfessorAttendanceActivity extends AppCompatActivity {
 
                 boolean rootFolderResult;
                 String rootFolderPath = null;
-                if(Build.VERSION.SDK_INT >= 26) { //for android 10 onwards
+                if(Build.VERSION.SDK_INT >= 29) {
                     rootFolderPath = getExternalFilesDir(null) + File.separator + Constants.BASE_FOLDER_NAME + File.separator + Constants.TABLES_FOLDER_NAME;
                 }
                 else {

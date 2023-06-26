@@ -117,7 +117,7 @@ public class ScannerActivity extends AppCompatActivity {
                             resultButton.setText("Scan again");
                         }
 
-                        if(Build.VERSION.SDK_INT >= 26) { //for android 8 onwards
+                        if(Build.VERSION.SDK_INT >= 26) {
                             vibrator.vibrate(VibrationEffect.createOneShot(250, VibrationEffect.DEFAULT_AMPLITUDE));
                         }
                         else {

@@ -24,7 +24,8 @@ public class RetrofitService {
         Gson gson = new GsonBuilder()
                 .setDateFormat("yyyy-MM-dd")
                 .registerTypeAdapter(Time.class, new JsonDeserializer<Time>() {
-                    public Time deserialize(JsonElement json, Type typeofT, JsonDeserializationContext context) throws JsonParseException {
+                    public Time deserialize(JsonElement json, Type typeofT, JsonDeserializationContext context)
+                    throws JsonParseException {
                         String jsonString = json.getAsString();
                         Time time = Time.valueOf(jsonString);
                         return time;
